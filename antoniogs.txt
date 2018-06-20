@@ -1,0 +1,12 @@
+Antonio Glez
+sudo apt-get install xclip
+which git
+echo está instalado en /usr/bin/git
+git congig --global 
+git config --global user.name "antoniogs-pre"
+git config --global user.mail "temporal4@gmail.com"
+git config user.mail
+ssh-keygen -t rsa -C "temporal4@gmail.com"
+xclip -sel clip < ~/.ssh/id_rsa.pub
+ssh -T git@github.com
+history -w antoniogs.txt
