@@ -1,9 +1,17 @@
 #!/bin/bash
-# Definición de variables
-year=$(date +%Y) 
-mes=$(date +%m) 
-# Definición de funciones
-function enhelp
+############# Definición de variables
+year=$(date +%Y) # valor por defecto año actual
+mes=$(date +%m)  # valor por defecto mes en curso
+idioma=$(locale | grep LC_MESSAGES | cut -d'=' -f2) # obtener lenguaje establecido para mensajes
+if [  $idioma == '"es_ES.UTF-8"' ]; then  # si el sistema tiene establecido lenguaje ES para mensajes
+# array de meses en español
+ meses=(meses enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre)
+else
+# array de meses en inglés
+ meses=(months january february march april may jun julay agust septembar november decembar)
+fi
+############# Definición de funciones
+function EN_help
 {
 cat << :help
 Sintax:
@@ -22,7 +30,7 @@ Sintax:
 :help
 }
 
-function ayuda
+function ES_ayuda
 {
 cat << :ayuda
 Sintaxis de uso:
@@ -40,37 +48,44 @@ Sintaxis de uso:
 
 :ayuda
 }
-function manual
+function manual  # ayuda según el idioma establecido en el sistema
 {
-local idioma=$(locale | grep LC_MESSAGES | cut -d'=' -f2)
-if [ $idioma == '"es_ES.UTF-8"' ]; then
- ayuda
+local idioma=$(locale | grep LC_MESSAGES | cut -d'=' -f2) # obtener lenguaje establecido para mensajes
+if [ $idioma == '"es_ES.UTF-8"' ]; then  # si el sistema tiene establecido lenguaje ES para mensajes
+ ES_ayuda  # Ayuda en Español
 else
- enhelp
+ EN_help   # Por defecto, ayuda en inglés
 fi
 }
-#
-[ $# -gt 2 ] &&   manual  && exit 1
-
-arg=$1
-[ "$arg" == "ayuda" ] &&   ayuda && exit 1
-[ "$arg" == "help" ]  &&  enhelp && exit 1
-#[ "$arg" == "" ] &&  cal && exit 1 
-
+########### Código de controles
+[ $# -gt 2 ] &&   manual  && exit 1 # no puede haber más de dos argumentos, mostrar ayuda según el idioma establecido en el sistema
+[ $# -gt 1 ] &&   year=${2,,} # obterner 2º argumento convertido a minúsculas
+arg=${1,,} # obterner 1º argumento convertido a minúsculas
+[ "$arg" == "ayuda" ] &&   ES_ayuda && exit 1 # si el argumento es la palabra "ayuda" mostrar ayuda en español 
+[ "$arg" == "help" ]  &&  EN_help && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
+########### Acción por defecto si no hay argumentos
+#[ "$arg" == "" ] &&  cal && exit 1 # sin argumentos mostrar mes en curso del año actual
+[ -z $arg ] &&  cal && exit 1 # sin argumentos mostrar mes en curso del año actual
+########### Selección de argumentos correctos
 case  $arg in 
  [1-9])
-    mes=$arg
-    echo $mes ;;
- enero | ene | jan |january)
+    mes=$arg;;
+ 1 | enero | ene | jan |january)
     mes=1;;
- fenero | fen | fab |fabruary)
+ 2 | fenero | fen | fab |fabruary)
     mes=2;;
- marzo | mar | mar |march)
+ 3 | marzo | mar | mar |march)
     mes=3;;
 
  12 | diciembre | dic | dec |decembar)
     mes=12;;
+ *)
 esac
-cal $mes $year 
-
+########### Ejecución de comando parametrizado
+cal $mes $year
+let index=1 #  ${meses[index]}
+for index in ${meses[@]}; do 
+echo $index 
+done
+exit 0 # Fin del programa devuelve código de valor sin errores
 
