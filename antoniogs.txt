@@ -9,4 +9,5 @@ git config user.mail
 ssh-keygen -t rsa -C "temporal4@gmail.com"
 xclip -sel clip < ~/.ssh/id_rsa.pub
 ssh -T git@github.com
+git remote add originssh git@github.com:antoniogs-pre/mcal.sh.git
 history -w antoniogs.txt
