@@ -4,15 +4,7 @@ export year=$(date +%Y) # valor por defecto año actual tipo global
                         # accesible en todas las funciones y subshells
 export mes=$(date +%m)  # valor por defecto mes en curso
 export idioma=$(locale | grep LC_MESSAGES | cut -d'=' -f2) # obtener lenguaje establecido para mensajes
-if [  $idioma == '"es_ES.UTF-8"' ]; then  # si el sistema tiene establecido lenguaje ES para mensajes
-RED=' \033[0;31m '
-NC=' \033[0m ' # No Color
-# array de meses en español
- meses=(meses enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre)
-else
-# array de meses en inglés
- meses=(months january february march april may jun julay agust septembar november decembar)
-fi
+
 ############# Definición de funciones
 function EN_help
 {
@@ -58,12 +50,15 @@ function manual  # ayuda según el idioma establecido en el sistema
 local error=$1
 local mensaje=$2
 local idioma=$(locale | grep LC_MESSAGES | cut -d'=' -f2) # obtener lenguaje establecido para mensajes
+local RED=' \033[0;31m '
+local NC=' \033[0m ' # No Color
 if [ $idioma == '"es_ES.UTF-8"' ]; then  # si el sistema tiene establecido lenguaje ES para mensajes
  ES_ayuda  # Ayuda en Español
  else
  EN_help   # Por defecto, ayuda en inglés
 fi
-[ $error -gt 0 ] && echo -e  \* " \t  $RED Error $error : $mensaje "
+[ ! -z $error ] && [ $error -gt 0 ] && echo -e   " \t  $RED Error $error : $mensaje "
+return 0
 }
 ########### Selección de argumentos correctos
 function controlafecha
@@ -78,22 +73,33 @@ if [ $nmes -gt 0 -a $nmes -le 12 ] ; then
 fi
 }
 #
-function muetrameses
+function muestrameses
 {
-let index=1 #  ${meses[index]}
+local let index=1 #  ${meses[index]}
+local meses=(months january february march april may jun julay agust septembar november decembar)
+if [  $idioma == '"es_ES.UTF-8"' ]; then  # si el sistema tiene establecido lenguaje ES para mensajes
+# array de meses en español
+ meses=(meses enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre)
+else
+# array de meses en inglés
+ meses=(months january february march april may jun julay agust septembar november decembar)
+fi
 while [ $index -lt 13 ]; do 
-echo ${meses[$index]} 
+echo -n " ${meses[$index]} "
 let "index++" # incremento
 done
+echo
 }
 ########### Fin definición de funciones, Inicio del programa
 ########### Código de controles
-[ $# -gt 2 ] &&   manual  && exit 1 # no puede haber más de dos argumentos, mostrar ayuda según el idioma establecido en el sistema
+[ $# -gt 2 ] &&   manual  &&  exit 1 # no puede haber más de dos argumentos, mostrar ayuda según el idioma establecido en el sistema
 [ $# -eq 2 ] &&   mes=${1,,} year=${2,,} # obterner argumento convertido a minúsculas
 [ $# -eq 1 ] &&   mes=${1,,}      # obterner argumento convertido a minúsculas
 #[ $# -eq 0 ] &&  cal && exit 1 # sin argumentos mostrar mes en curso del año actual
 [ "$mes" == "ayuda" -o "$year" == "ayuda" ] &&   ES_ayuda && exit 1 # si el argumento es la palabra "ayuda" mostrar ayuda en español 
 [ "$mes" == "help" -o  "$year" == "help" ]  &&  EN_help && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
+[ "$mes" == "meses" -o  "$year" == "meses" -o "$mes" == "month" -o  "$year" == "month" ] \
+      && muestrameses && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
 controlafecha || (echo " Mes o Año erroneos " ; exit 2) # si mes o año erroneo salir
 ########### Ejecución de comando parametrizado
 cal $mes $year 2> /dev/null  || error=$?
