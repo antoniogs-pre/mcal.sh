@@ -10,7 +10,7 @@ function EN_help
 {
 cat << :help
 Sintax:
-  $0 [month] [year]
+  $0 [month] [year] [-ayuda ] [-help]
 
   where:
 
@@ -30,9 +30,10 @@ function ES_ayuda
 {
 cat << :ayuda
 Sintaxis de uso:
- $0 [mes] [año]
+ $0 [mes] [año] [-ayuda ] [-help]
 
   donde:
+      
       - si el argumento es la palabra ayuda o help recibirá esta ayuda en su respectivo idioma
       - Mes y año son opcionales. Si no se especifica ninguno se asume mes y año actuales
       - Los argumentos  se pueden indicar como números  mayores de cero.
@@ -96,14 +97,14 @@ echo
 [ $# -eq 2 ] &&   mes=${1,,} year=${2,,} # obterner argumento convertido a minúsculas
 [ $# -eq 1 ] &&   mes=${1,,}      # obterner argumento convertido a minúsculas
 #[ $# -eq 0 ] &&  cal && exit 1 # sin argumentos mostrar mes en curso del año actual
-[ "$mes" == "ayuda" -o "$year" == "ayuda" ] &&   ES_ayuda && exit 1 # si el argumento es la palabra "ayuda" mostrar ayuda en español 
-[ "$mes" == "help" -o  "$year" == "help" ]  &&  EN_help && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
+[ "$mes" == "-ayuda" -o "$year" == "ayuda" ] &&   ES_ayuda && exit 1 # si el argumento es la palabra "ayuda" mostrar ayuda en español 
+[ "$mes" == "-help" -o  "$year" == "help" ]  &&  EN_help && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
 [ "$mes" == "meses" -o  "$year" == "meses" -o "$mes" == "month" -o  "$year" == "month" ] \
-      && muestrameses && exit 1 # si el argumento es la palabra "help" mostrar ayuda en inglés
+      && muestrameses && exit 1 # si el argumento es la palabra "meses o month" mostrar lista de meses 
 controlafecha || (echo " Mes o Año erroneos " ; exit 2) # si mes o año erroneo salir
 ########### Ejecución de comando parametrizado
-cal $mes $year 2> /dev/null  || error=$?
+cal $mes $year 2> /dev/null  || error=$? # ejecutar cal parametrizado y con los argumentos ya depurados
 if [ $error ] ; then
-manual $error 'No ha tecleado un mes o un año correcto'
+manual $error 'No ha tecleado un mes o un año correcto'  # No me dá tiempo pero abro la puerta a mensajes dependientes del idioma asociados a los códigos de error
 fi
 # FIN del programa
